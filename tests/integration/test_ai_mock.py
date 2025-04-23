@@ -79,7 +79,7 @@ class TestAIMockIntegration(unittest.TestCase):
         with patch('builtins.print') as mock_print:
             self.ai.message("Debug test", debug=True)
             # Check if debug headers were printed
-            printed_output = " ".join(call.args[0] for call in mock_print.call_args_list if call.args)
+            printed_output = " ".join(str(call.args[0]) for call in mock_print.call_args_list if call.args)
             self.assertIn("--MODEL: mock-", printed_output)
             self.assertIn("--SYSTEM PROMPT START--", printed_output)
             self.assertIn("--MESSAGES RECEIVED START--", printed_output)

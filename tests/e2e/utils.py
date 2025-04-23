@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 def e2e_available(provider_env_var: str) -> bool:
     """Checks if E2E tests are enabled and the specific provider key is set."""
     return os.getenv("RUN_E2E") == "1" and os.getenv(provider_env_var)

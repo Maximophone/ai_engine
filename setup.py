@@ -17,6 +17,11 @@ setup(
         'Pillow>=9.0.0', # For image_utils
         'requests>=2.25.0' # Potentially needed by wrappers or future additions
     ],
+    extras_require={
+        'test': [
+            'python-dotenv>=0.15.0',
+        ]
+    },
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License', # Choose your license

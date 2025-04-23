@@ -2,7 +2,7 @@ import unittest
 import os
 from unittest.mock import patch
 from ai_core import AI, tool
-from .utils import e2e_available, OPENAI_API_KEY_VAR
+from tests.e2e.utils import e2e_available, OPENAI_API_KEY_VAR
 
 # Define a simple tool for testing
 @tool(description="Get the length of a string", text="The string to measure")

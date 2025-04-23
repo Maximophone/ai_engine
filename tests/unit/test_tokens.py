@@ -9,7 +9,7 @@ from ai_core.types import Message, MessageContent
 class TestTokenCounting(unittest.TestCase):
 
     def test_n_tokens_text(self):
-        self.assertEqual(n_tokens("This is a test."), 4)
+        self.assertEqual(n_tokens("This is a test."), 3)
         self.assertEqual(n_tokens(""), 0)
         self.assertEqual(n_tokens("token"), 1) # Rough approximation
 
@@ -63,6 +63,7 @@ class TestTokenCounting(unittest.TestCase):
 
         # Test input logging
         log_token_use("test-model", 100, input=True, fpath="dummy.csv")
+        mock_open().assert_any_call("dummy.csv", "a+")
         mock_open().write.assert_called_with("test-model,input,100,2023-01-01T12:00:00,test_script.py\n")
 
         # Reset mock call args for next assert

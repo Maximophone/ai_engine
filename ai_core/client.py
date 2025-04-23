@@ -121,7 +121,7 @@ class AI:
             if tools_to_use:
                 print("--TOOLS START--", flush=True)
                 for tool in tools_to_use:
-                    print(f"Tool: {tool.name} - {tool.description}", flush=True)
+                    print(f"Tool: {tool.tool.name} - {tool.tool.description}", flush=True)
                 print("--TOOLS END--", flush=True)
             print("--MESSAGES RECEIVED START--", flush=True)
             for message in messages:
