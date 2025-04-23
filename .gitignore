@@ -1,0 +1,17 @@
+# Environment variables
+.env
+
+# Test artifacts
+token_count.csv
+tests/__pycache__/
+tests/unit/__pycache__/
+tests/integration/__pycache__/
+tests/e2e/__pycache__/
+__pycache__/
+ai_core/__pycache__/
+ai_core/wrappers/__pycache__/
+
+# Build artifacts
+*.egg-info/
+build/
+dist/ 
