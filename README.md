@@ -39,6 +39,9 @@ def get_current_weather(city: str, unit: str = "fahrenheit") -> str:
 # Initialize the client (pass necessary API keys)
 # Keys can also be read from environment variables:
 # ANTHROPIC_API_KEY, GOOGLE_API_KEY, OPENAI_API_KEY, DEEPSEEK_API_KEY, PERPLEXITY_API_KEY
+# If an API key argument (e.g., `claude_api_key`) is not provided during initialization, 
+# the library will automatically attempt to load it from its corresponding environment variable.
+# Explicitly passed keys take precedence over environment variables.
 ai = AI(
     model_name="sonnet3.7", # Or gpt4o, gemini1.5, etc.
     system_prompt="You are a helpful assistant.",
@@ -95,4 +98,4 @@ print(response)
 
 ## License
 
-[MIT License] # Choose your license 
+MIT License

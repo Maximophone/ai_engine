@@ -1,3 +1,4 @@
+import os
 from typing import List, Optional, Union
 from .types import Message, MessageContent
 from .tools import Tool
@@ -39,6 +40,20 @@ class AI:
         self._last_reasoning = None
         self.debug = debug
         
+        # Load API keys from environment variables if not provided
+        if claude_api_key is None:
+            claude_api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if gemini_api_key is None:
+            gemini_api_key = os.environ.get("GOOGLE_API_KEY")
+        if openai_api_key is None:
+            openai_api_key = os.environ.get("OPENAI_API_KEY")
+        if openai_org is None:
+            openai_org = os.environ.get("OPENAI_ORG_ID") # .env.example uses OPENAI_ORG_ID
+        if deepseek_api_key is None:
+            deepseek_api_key = os.environ.get("DEEPSEEK_API_KEY")
+        if perplexity_api_key is None:
+            perplexity_api_key = os.environ.get("PERPLEXITY_API_KEY")
+
         # Get the appropriate client, passing API keys
         self.client = get_client(
             model_name=self.model_name,
