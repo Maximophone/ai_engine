@@ -42,28 +42,22 @@ class AI:
         self.debug = debug
         
         # Load API keys from environment variables if not provided
-        if claude_api_key is None:
-            claude_api_key = os.environ.get("ANTHROPIC_API_KEY")
-        if gemini_api_key is None:
-            gemini_api_key = os.environ.get("GOOGLE_API_KEY")
-        if openai_api_key is None:
-            openai_api_key = os.environ.get("OPENAI_API_KEY")
-        if openai_org is None:
-            openai_org = os.environ.get("OPENAI_ORG_ID") # .env.example uses OPENAI_ORG_ID
-        if deepseek_api_key is None:
-            deepseek_api_key = os.environ.get("DEEPSEEK_API_KEY")
-        if perplexity_api_key is None:
-            perplexity_api_key = os.environ.get("PERPLEXITY_API_KEY")
+        self.claude_api_key = claude_api_key or os.environ.get("ANTHROPIC_API_KEY")
+        self.gemini_api_key = gemini_api_key or os.environ.get("GOOGLE_API_KEY")
+        self.openai_api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
+        self.openai_org = openai_org or os.environ.get("OPENAI_ORG_ID")
+        self.deepseek_api_key = deepseek_api_key or os.environ.get("DEEPSEEK_API_KEY")
+        self.perplexity_api_key = perplexity_api_key or os.environ.get("PERPLEXITY_API_KEY")
 
         # Get the appropriate client, passing API keys
         self.client = get_wrapper(
             model_identifier=model_identifier,
-            claude_api_key=claude_api_key,
-            gemini_api_key=gemini_api_key,
-            openai_api_key=openai_api_key,
-            openai_org=openai_org,
-            deepseek_api_key=deepseek_api_key,
-            perplexity_api_key=perplexity_api_key
+            claude_api_key=self.claude_api_key,
+            gemini_api_key=self.gemini_api_key,
+            openai_api_key=self.openai_api_key,
+            openai_org=self.openai_org,
+            deepseek_api_key=self.deepseek_api_key,
+            perplexity_api_key=self.perplexity_api_key
         )
 
     def _prepare_messages(self, message: Union[str, Message], image_paths: List[str] = None) -> List[Message]:
@@ -119,8 +113,19 @@ class AI:
                  thinking_budget_tokens: Optional[int] = None) -> AIResponse:
         debug = debug | self.debug
         if model_override:
-            model_name = model_override or self.model_name
-            client = self.client
+            model_provider, model_name = resolve_model_info(model_override)
+            if model_provider != self.model_provider:
+                client = get_wrapper(
+                    model_identifier=model_override,
+                    claude_api_key=self.claude_api_key,
+                    gemini_api_key=self.gemini_api_key,
+                    openai_api_key=self.openai_api_key,
+                    openai_org=self.openai_org,
+                    deepseek_api_key=self.deepseek_api_key,
+                    perplexity_api_key=self.perplexity_api_key
+                )
+            else:
+                client = self.client
         else:
             model_name = self.model_name
             client = self.client
