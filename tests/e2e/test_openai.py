@@ -18,8 +18,8 @@ class TestOpenAIEndToEnd(unittest.TestCase):
     def setUp(self):
         # Initialize AI client specifically for OpenAI within the test
         # This ensures it only tries to initialize if the test runs
-        self.ai_gpt4o = AI(model_name="gpt4o", tools=[get_string_length])
-        self.ai_gpt35 = AI(model_name="gpt3.5") # Test without tools
+        self.ai_gpt4o = AI(model_identifier="gpt4o", tools=[get_string_length])
+        self.ai_gpt35 = AI(model_identifier="gpt3.5") # Test without tools
 
     def test_openai_gpt4o_basic_chat(self, mock_log_tokens):
         """Test basic chat completion with GPT-4o"""

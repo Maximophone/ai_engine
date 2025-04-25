@@ -41,7 +41,7 @@ class TestGeminiEndToEnd(unittest.TestCase):
     def setUp(self):
         # Initialize AI client for Gemini 1.5 Pro
         # Note: get_client requires model name to initialize GeminiWrapper correctly
-        self.ai_gemini15 = AI(model_name="gemini1.5", tools=[get_string_length])
+        self.ai_gemini15 = AI(model_identifier="gemini1.5", tools=[get_string_length])
 
     def test_gemini15_basic_chat(self, mock_log_tokens):
         """Test basic chat completion with Gemini 1.5 Pro"""
@@ -83,7 +83,7 @@ class TestGeminiEndToEnd(unittest.TestCase):
 
     def test_gemini15_conversation(self, mock_log_tokens):
         """Test conversation history with Gemini 1.5 Pro"""
-        ai = AI(model_name="gemini1.5") # Fresh instance for conversation test
+        ai = AI(model_identifier="gemini1.5") # Fresh instance for conversation test
         response1 = ai.conversation("My favorite color is blue.")
         self.assertIsInstance(response1.content, str)
 

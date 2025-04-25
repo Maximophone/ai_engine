@@ -1,46 +1,119 @@
 import os
-from typing import Optional
+from typing import Optional, Tuple
 from .wrappers import ClaudeWrapper, GeminiWrapper, GPTWrapper, MockWrapper, AIWrapper, DeepSeekWrapper, PerplexityWrapper
 
-_MODELS_DICT = {
-    "mock": "mock-",
-    "haiku": "claude-3-haiku-20240307",
-    "sonnet": "claude-3-sonnet-20240229",
-    "opus": "claude-3-opus-20240229",
-    "sonnet3.5": "claude-3-5-sonnet-latest",
-    "sonnet3.7": "claude-3-7-sonnet-latest",
-    "haiku3.5": "claude-3-5-haiku-latest",
-    "gemini1.0": "gemini-1.0-pro-latest",
-    "gemini1.5": "gemini-1.5-pro-latest",
-    "gemini2.0flash": "gemini-2.0-flash",
-    "gemini2.0flashlite": "gemini-2.0-flash-lite",
-    "gemini2.0flashthinking": "gemini-2.0-flash-thinking-exp",
-    "gemini2.0exp": "gemini-exp-1206",
-    "gemini2.5exp": "gemini-2.5-pro-exp-03-25",
-    "gemini2.5pro": "gemini-2.5-pro-preview-03-25",
-    "gpt3.5": "gpt-3.5-turbo",
-    "gpt4": "gpt-4-turbo-preview",
-    "gpt4o": "gpt-4o",
-    "mini": "gpt-4o-mini",
-    "o1-preview": "o1-preview",
-    "o1-mini": "o1-mini",
-    "o1": "o1-2024-12-17",
-    "o3": "o3",
-    "o4-mini": "o4-mini",
-    "gpt4.1": "gpt-4.1",
-    "deepseek-chat": "deepseek-chat",
-    "deepseek-reasoner": "deepseek-reasoner",
-    "sonar": "sonar",
-    "sonar-pro": "sonar-pro",
+# Explicit set of supported providers
+_SUPPORTED_PROVIDERS = {
+    "anthropic",
+    "google",
+    "openai",
+    "deepseek",
+    "perplexity",
+    "mock",
 }
 
-DEFAULT_MODEL = "sonnet3.7"
+# Mapping from user-friendly aliases to a canonical "provider:model_name" format.
+# Canonical names themselves are handled directly by the resolution logic.
+# Note: Some canonical model names (esp. for 'latest', Google experimental, Perplexity) might need verification against provider docs.
+_MODEL_ALIASES = {
+    # Anthropic Aliases
+    "haiku": "anthropic:claude-3-haiku-20240307",
+    "sonnet": "anthropic:claude-3-sonnet-20240229",
+    "opus": "anthropic:claude-3-opus-20240229",
+    "sonnet3.5": "anthropic:claude-3-5-sonnet-latest",
+    "sonnet3.7": "anthropic:claude-3-7-sonnet-latest", # Verify actual name if available
+    "haiku3.5": "anthropic:claude-3-5-haiku-latest", # Verify actual name if available
 
-def get_model(model_name: str) -> str:
-    return _MODELS_DICT.get(model_name, model_name)
+    # Google Aliases
+    "gemini1.0": "google:gemini-1.0-pro-latest",
+    "gemini1.5": "google:gemini-1.5-pro-latest",
+    "gemini2.0flash": "google:gemini-flash", # Assuming simpler name, verify
+    "gemini2.0flashlite": "google:gemini-flash-lite", # Verify name
+    "gemini2.0flashthinking": "google:gemini-flash-thinking-exp", # Verify name
+    "gemini2.0exp": "google:gemini-exp-1206", # Verify name
+    "gemini2.5exp": "google:gemini-2.5-pro-exp-03-25", # Verify name
+    "gemini2.5pro": "google:gemini-2.5-pro-preview-03-25", # Verify name
 
-def get_client(
-    model_name: str, 
+    # OpenAI Aliases
+    "gpt3.5": "openai:gpt-3.5-turbo",
+    "gpt4": "openai:gpt-4-turbo-preview",
+    "gpt4o": "openai:gpt-4o",
+    "mini": "openai:gpt-4o-mini",
+    "o1-preview": "openai:o1-preview",
+    "o1-mini": "openai:o1-mini",
+    "o1": "openai:o1-2024-12-17",
+    "o3": "openai:o3",
+    "o4-mini": "openai:o4-mini",
+    "gpt4.1": "openai:gpt-4.1", # Verify name
+
+    # DeepSeek Aliases
+    "deepseek-chat": "deepseek:deepseek-chat",
+    "deepseek-reasoner": "deepseek:deepseek-reasoner", # Verify name, original had 'reasoner'
+
+    # Perplexity Aliases
+    "sonar": "perplexity:sonar", # Verify canonical name
+    "sonar-pro": "perplexity:sonar-pro", # Verify canonical name
+
+    # Mock Alias
+    "mock": "mock:mock-model",
+}
+
+DEFAULT_MODEL_IDENTIFIER = "sonnet3.7" # Use an alias by default
+
+
+def resolve_model_info(model_identifier: str) -> Tuple[str, str]:
+    """
+    Resolves a user-provided model identifier (alias or "provider:model_name")
+    into its provider and canonical model name.
+
+    Args:
+        model_identifier: The alias (e.g., 'sonnet3.7') or full name (e.g., 'anthropic:claude-3-opus-20240229').
+
+    Returns:
+        A tuple containing (provider, model_name).
+
+    Raises:
+        ValueError: If the identifier is not recognized, malformed, or uses an unsupported provider.
+    """
+    canonical_identifier = _MODEL_ALIASES.get(model_identifier)
+
+    if canonical_identifier:
+        # Identifier is an alias, use the canonical name from the dict
+        pass # canonical_identifier is already set
+    elif ":" in model_identifier:
+        # Identifier is potentially a direct canonical name "provider:model_name"
+        try:
+            provider_check, model_name_check = model_identifier.split(":", 1)
+            if not provider_check or not model_name_check:
+                raise ValueError("Malformed identifier") # Contains colon but empty provider or model
+            if provider_check in _SUPPORTED_PROVIDERS:
+                canonical_identifier = model_identifier # It's a valid canonical name for a supported provider
+            else:
+                raise ValueError(f"Unsupported provider '{provider_check}' in identifier: {model_identifier}")
+        except ValueError as e:
+             # Catch split errors or errors from our checks
+             if "Malformed identifier" in str(e) or "Unsupported provider" in str(e):
+                 raise
+             else: # Assume error from split() due to no colon, which shouldn't happen here, but belts and suspenders
+                 raise ValueError(f"Invalid format for model identifier: {model_identifier}") from e
+    else:
+        # Identifier is not in aliases and doesn't contain a colon, so it's an unknown alias
+        raise ValueError(f"Unknown or unsupported model identifier alias: {model_identifier}")
+
+    # Now parse the resolved canonical_identifier
+    try:
+        provider, model_name = canonical_identifier.split(":", 1)
+        # Final check, should always pass if logic above is correct
+        if not provider or not model_name or provider not in _SUPPORTED_PROVIDERS:
+             raise ValueError("Internal Error: Invalid canonical format or unsupported provider generated")
+        return provider, model_name
+    except ValueError as e:
+         # This catch is primarily for the split(":", 1) failing on a value from _MODEL_ALIASES or internal errors
+         raise ValueError(f"Internal Error: Failed to parse canonical identifier '{canonical_identifier}' derived from '{model_identifier}': {e}") from e
+
+
+def get_wrapper(
+    model_identifier: str = DEFAULT_MODEL_IDENTIFIER,
     claude_api_key: Optional[str] = None,
     gemini_api_key: Optional[str] = None,
     openai_api_key: Optional[str] = None,
@@ -49,66 +122,72 @@ def get_client(
     perplexity_api_key: Optional[str] = None,
 ) -> AIWrapper:
     """
-    Get the appropriate AI client wrapper for the specified model.
-    Requires the corresponding API key to be provided for the chosen model type.
-    
+    Get the appropriate AI provider wrapper for the specified model identifier.
+    Accepts either a known alias (e.g., 'sonnet3.7') or a full identifier
+    in the format "provider:model_name" (e.g., "anthropic:claude-3-opus-20240229").
+
+    Uses the DEFAULT_MODEL_IDENTIFIER if none is provided.
+
+    Requires the corresponding API key to be provided via argument or environment
+    variable for the resolved provider.
+
     Args:
-        model_name: Name of the model to get client for (e.g., 'haiku', 'gemini1.5', 'gpt4o')
-        claude_api_key: API key for Anthropic Claude models
-        gemini_api_key: API key for Google Gemini models
-        openai_api_key: API key for OpenAI GPT models
-        openai_org: Optional OpenAI organization ID
-        deepseek_api_key: API key for DeepSeek models
-        perplexity_api_key: API key for Perplexity models
-        
+        model_identifier: Alias or full "provider:model_name" string. Defaults to DEFAULT_MODEL_IDENTIFIER.
+        claude_api_key: API key for Anthropic models.
+        gemini_api_key: API key for Google models.
+        openai_api_key: API key for OpenAI models.
+        openai_org: Optional OpenAI organization ID.
+        deepseek_api_key: API key for DeepSeek models.
+        perplexity_api_key: API key for Perplexity models.
+
     Returns:
-        AIWrapper instance for the specified model
-        
+        AIWrapper instance for the specified model.
+
     Raises:
-        ValueError: If the required API key for the model type is not provided.
+        ValueError: If the identifier is invalid, the provider is unsupported,
+                    or the required API key for the provider is missing.
     """
-    model_key = model_name # Keep original for lookup if needed
-    model_name = get_model(model_name)
-    client_name, _ = model_name.split("-", 1) if "-" in model_name else (model_name, "")
-    
-    if client_name == "claude":
-        if not claude_api_key:
-            claude_api_key = os.environ.get("ANTHROPIC_API_KEY")
-            if not claude_api_key:
-                 raise ValueError("Claude API key must be provided via argument or ANTHROPIC_API_KEY env var for Claude models.")
-        return ClaudeWrapper(claude_api_key)
-    elif client_name == "gemini":
-        if not gemini_api_key:
-            gemini_api_key = os.environ.get("GOOGLE_API_KEY")
-            if not gemini_api_key:
-                raise ValueError("Gemini API key must be provided via argument or GOOGLE_API_KEY env var for Gemini models.")
-        # Pass model_name (resolved full name) to GeminiWrapper
-        # Rate limiting setup moved inside the wrapper or handled by application
-        return GeminiWrapper(
-            api_key=gemini_api_key, 
-            model_name=model_name 
-        )
-    elif client_name in ["gpt", "o1", "o3", "o4-mini"]:
-        if not openai_api_key:
-            openai_api_key = os.environ.get("OPENAI_API_KEY")
-            if not openai_api_key:
-                 raise ValueError("OpenAI API key must be provided via argument or OPENAI_API_KEY env var for GPT/o1/o3 models.")
-        # Org ID is optional for GPTWrapper
-        openai_org_id = openai_org or os.environ.get("OPENAI_ORG_ID")
-        return GPTWrapper(openai_api_key, openai_org_id)
-    elif client_name == "deepseek":
-        if not deepseek_api_key:
-            deepseek_api_key = os.environ.get("DEEPSEEK_API_KEY")
-            if not deepseek_api_key:
-                 raise ValueError("DeepSeek API key must be provided via argument or DEEPSEEK_API_KEY env var for DeepSeek models.")
-        return DeepSeekWrapper(deepseek_api_key)
-    elif client_name == "sonar":
-         if not perplexity_api_key:
-            perplexity_api_key = os.environ.get("PERPLEXITY_API_KEY")
-            if not perplexity_api_key:
-                 raise ValueError("Perplexity API key must be provided via argument or PERPLEXITY_API_KEY env var for Perplexity models.")
-         return PerplexityWrapper(perplexity_api_key)
-    elif client_name == "mock":
+    try:
+        provider, model_name = resolve_model_info(model_identifier)
+    except ValueError as e:
+         # Re-raise with a more context-specific message if desired, or just let it propagate
+         raise ValueError(f"Failed to resolve model identifier '{model_identifier}': {e}") from e
+
+    if provider == "anthropic":
+        api_key = claude_api_key or os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise ValueError("Anthropic API key must be provided via argument or ANTHROPIC_API_KEY env var for Anthropic models.")
+        # ClaudeWrapper typically doesn't need the specific model name passed during init
+        # It usually takes it during the completion call, but check its implementation.
+        return ClaudeWrapper(api_key)
+    elif provider == "google":
+        api_key = gemini_api_key or os.environ.get("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("Google API key must be provided via argument or GOOGLE_API_KEY env var for Google models.")
+        # GeminiWrapper needs the resolved model name
+        return GeminiWrapper(api_key=api_key, model_name=model_name)
+    elif provider == "openai": # Handles gpt*, o* models
+        api_key = openai_api_key or os.environ.get("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OpenAI API key must be provided via argument or OPENAI_API_KEY env var for OpenAI models.")
+        org_id = openai_org or os.environ.get("OPENAI_ORG_ID")
+        # GPTWrapper typically doesn't need the model name at init.
+        return GPTWrapper(api_key, org_id)
+    elif provider == "deepseek":
+        api_key = deepseek_api_key or os.environ.get("DEEPSEEK_API_KEY")
+        if not api_key:
+            raise ValueError("DeepSeek API key must be provided via argument or DEEPSEEK_API_KEY env var for DeepSeek models.")
+        # DeepSeekWrapper likely just needs the key.
+        return DeepSeekWrapper(api_key)
+    elif provider == "perplexity":
+        api_key = perplexity_api_key or os.environ.get("PERPLEXITY_API_KEY")
+        if not api_key:
+            raise ValueError("Perplexity API key must be provided via argument or PERPLEXITY_API_KEY env var for Perplexity models.")
+        # PerplexityWrapper might need the model name depending on its implementation.
+        # Assuming it just needs the key for now. If needed: return PerplexityWrapper(api_key, model_name=model_name)
+        return PerplexityWrapper(api_key)
+    elif provider == "mock":
         return MockWrapper()
-        
-    raise ValueError(f"Unsupported model provider for model key: {model_key}") 
+
+    # This should be unreachable if resolve_model_info works correctly and covers all providers in _MODEL_ALIASES
+    raise ValueError(f"Internal Error: Unhandled supported provider '{provider}' derived from identifier '{model_identifier}'.") 

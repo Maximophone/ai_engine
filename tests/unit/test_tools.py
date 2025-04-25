@@ -31,7 +31,7 @@ def get_weather_enum_test(
 ) -> str:
     return f"Weather in {city} is nice in {units.name}."
 
-@tool(description="Test Safe Flag", safe=False)
+@tool(description="Test Safe Flag", param="desc", safe=False)
 def unsafe_tool_test(param: str) -> str:
     return "unsafe"
 

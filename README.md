@@ -43,7 +43,7 @@ def get_current_weather(city: str, unit: str = "fahrenheit") -> str:
 # the library will automatically attempt to load it from its corresponding environment variable.
 # Explicitly passed keys take precedence over environment variables.
 ai = AI(
-    model_name="sonnet3.7", # Or gpt4o, gemini1.5, etc.
+    model_identifier="sonnet3.7", # Or "anthropic:claude-3-opus-20240229", "openai:gpt-4o", etc.
     system_prompt="You are a helpful assistant.",
     tools=[get_current_weather], 
     claude_api_key=os.environ.get("ANTHROPIC_API_KEY"), # Example for Claude
@@ -82,7 +82,7 @@ import os
 my_tools = [my_custom_tool]
 
 ai_client = AI(
-    model_name="gpt4o",
+    model_identifier="openai:gpt-4o", # Example using full identifier
     tools=my_tools,
     openai_api_key=os.environ.get("OPENAI_API_KEY")
 )

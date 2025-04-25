@@ -2,7 +2,7 @@ import os
 from typing import List, Optional, Union
 from .types import Message, MessageContent
 from .tools import Tool
-from .models import get_model, get_client
+from .models import resolve_model_info, get_wrapper
 from .image_utils import encode_image, validate_image
 from .wrappers import AIResponse
 
@@ -10,7 +10,7 @@ DEFAULT_MAX_TOKENS = 4096
 DEFAULT_TEMPERATURE = 0.0
 
 class AI:
-    def __init__(self, model_name: str, system_prompt: str = "", 
+    def __init__(self, model_identifier: str, system_prompt: str = "", 
                  tools: Optional[List[Tool]] = None, debug=False,
                  claude_api_key: Optional[str] = None,
                  gemini_api_key: Optional[str] = None,
@@ -22,7 +22,7 @@ class AI:
         AI client for accessing various LLM APIs.
         
         Args:
-            model_name: The name of the model to use (e.g., 'haiku', 'gemini1.5', 'gpt4o')
+            model_identifier: The name of the model to use (e.g., 'haiku', 'gemini1.5', 'gpt4o')
             system_prompt: Optional system prompt to use for all messages
             tools: Optional list of tools to make available to the LLM
             debug: Whether to enable debug mode
@@ -33,7 +33,8 @@ class AI:
             deepseek_api_key: API key for DeepSeek models
             perplexity_api_key: API key for Perplexity models
         """
-        self.model_name = get_model(model_name)
+        self.model_identifier = model_identifier
+        self.model_provider, self.model_name = resolve_model_info(model_identifier)
         self.system_prompt = system_prompt
         self.tools = tools or []
         self._history = []
@@ -55,8 +56,8 @@ class AI:
             perplexity_api_key = os.environ.get("PERPLEXITY_API_KEY")
 
         # Get the appropriate client, passing API keys
-        self.client = get_client(
-            model_name=self.model_name,
+        self.client = get_wrapper(
+            model_identifier=model_identifier,
             claude_api_key=claude_api_key,
             gemini_api_key=gemini_api_key,
             openai_api_key=openai_api_key,
@@ -118,7 +119,7 @@ class AI:
                  thinking_budget_tokens: Optional[int] = None) -> AIResponse:
         debug = debug | self.debug
         if model_override:
-            model_name = get_model(model_override) or self.model_name
+            model_name = model_override or self.model_name
             client = self.client
         else:
             model_name = self.model_name

@@ -41,9 +41,9 @@ class TestClaudeEndToEnd(unittest.TestCase):
                          f"E2E test requires RUN_E2E=1 and {ANTHROPIC_API_KEY_VAR} set")
     def setUp(self):
         # Initialize AI clients for different Claude models
-        self.ai_haiku = AI(model_name="haiku", tools=[get_string_length])
+        self.ai_haiku = AI(model_identifier="haiku", tools=[get_string_length])
         # Sonnet 3.5 supports images and thinking
-        self.ai_sonnet37 = AI(model_name="sonnet3.7", tools=[get_string_length])
+        self.ai_sonnet37 = AI(model_identifier="sonnet3.7", tools=[get_string_length])
 
     def test_claude_haiku_basic_chat(self, mock_log_tokens):
         """Test basic chat completion with Claude Haiku"""

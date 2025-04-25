@@ -13,7 +13,7 @@ class TestAIMockIntegration(unittest.TestCase):
 
     def setUp(self):
         self.ai = AI(
-            model_name="mock",
+            model_identifier="mock",
             system_prompt="Mock system prompt.",
             tools=[simple_tool_mock]
         )
