@@ -23,6 +23,8 @@ _MODEL_ALIASES = {
     "sonnet3.5": "anthropic:claude-3-5-sonnet-latest",
     "sonnet3.7": "anthropic:claude-3-7-sonnet-latest", # Verify actual name if available
     "haiku3.5": "anthropic:claude-3-5-haiku-latest", # Verify actual name if available
+    "opus4": "anthropic:claude-opus-4-20250514",
+    "sonnet4": "anthropic:claude-sonnet-4-20250514",
 
     # Google Aliases
     "gemini1.0": "google:gemini-1.0-pro-latest",
@@ -58,7 +60,7 @@ _MODEL_ALIASES = {
     "mock": "mock:mock-model",
 }
 
-DEFAULT_MODEL_IDENTIFIER = "sonnet3.7" # Use an alias by default
+DEFAULT_MODEL_IDENTIFIER = "sonnet4" # Use an alias by default
 
 
 def resolve_model_info(model_identifier: str) -> Tuple[str, str]:
