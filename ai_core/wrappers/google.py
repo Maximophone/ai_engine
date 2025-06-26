@@ -67,23 +67,60 @@ class GeminiWrapper(AIWrapper):
         if tools:
              self.logger.warning("Gemini tool usage not fully implemented in this basic wrapper.")
         
-        try:
-            response = model.generate_content(
-                gemini_messages, 
-                generation_config=generation_config,
-            )
+        response = model.generate_content(
+            gemini_messages, 
+            generation_config=generation_config,
+        )
+        
+        # Enhanced error handling for no candidates
+        if not response.candidates:
+            # Check for prompt-level blocking
+            prompt_feedback = getattr(response, 'prompt_feedback', None)
+            if prompt_feedback:
+                block_reason = getattr(prompt_feedback, 'block_reason', None)
+                safety_ratings = getattr(prompt_feedback, 'safety_ratings', [])
                 
-            if not response.candidates:
-                 prompt_feedback = getattr(response, 'prompt_feedback', None)
-                 finish_reason = getattr(prompt_feedback, 'block_reason', 'Unknown') if prompt_feedback else 'Unknown'
-                 safety_ratings = getattr(prompt_feedback, 'safety_ratings', []) if prompt_feedback else []
-                 error_detail = f"No candidates returned. Finish reason: {finish_reason}. Safety: {safety_ratings}"
-                 self.logger.error(error_detail)
-                 return AIResponse(content=f"Error: {error_detail}") 
+                if block_reason:
+                    error_detail = f"Prompt was blocked due to {block_reason}. Safety ratings: {safety_ratings}"
+                else:
+                    error_detail = f"No candidates returned. Safety ratings: {safety_ratings}"
+            else:
+                error_detail = "No candidates returned and no prompt feedback available."
             
-            response_text = response.candidates[0].content.parts[0].text
-            return AIResponse(content=response_text)
-                
-        except Exception as e:
-            self.logger.error(f"Error calling Gemini API: {str(e)}")
-            return AIResponse(content=f"Error: {str(e)}") 
+            raise Exception(error_detail)
+
+        # Get the first candidate
+        candidate = response.candidates[0]
+        
+        # Check candidate's finish reason for various blocking scenarios
+        finish_reason = getattr(candidate, 'finish_reason', None)
+        if finish_reason:
+            if finish_reason == "SAFETY":
+                safety_ratings = getattr(candidate, 'safety_ratings', [])
+                error_detail = f"Response was blocked due to safety concerns. Safety ratings: {safety_ratings}"
+                raise Exception(error_detail)
+            elif finish_reason == "RECITATION":
+                error_detail = "Response was blocked due to recitation concerns. The output may resemble training data."
+                raise Exception(error_detail)
+            elif finish_reason in ["MAX_TOKENS", "OTHER"]:
+                self.logger.warning(f"Response finished with reason: {finish_reason}")
+                # Continue processing as we might still have partial content
+        
+        # Check if content exists
+        if not hasattr(candidate, 'content') or not candidate.content:
+            error_detail = f"No content in candidate. Finish reason: {finish_reason}"
+            raise Exception(error_detail)
+        
+        # Check if parts exist
+        if not hasattr(candidate.content, 'parts') or not candidate.content.parts:
+            error_detail = f"No parts in candidate content. Finish reason: {finish_reason}"
+            raise Exception(error_detail)
+        
+        # Check if the first part has text
+        first_part = candidate.content.parts[0]
+        if not hasattr(first_part, 'text') or not first_part.text:
+            error_detail = f"No text in first part. Part type: {type(first_part)}. Finish reason: {finish_reason}"
+            raise Exception(error_detail)
+
+        response_text = first_part.text
+        return AIResponse(content=response_text)
