@@ -57,19 +57,14 @@ class GeminiWrapper(AIWrapper):
             temperature=temperature
         )
         
-        system_instruction = None
-        if system_prompt:
-             system_instruction = genai.types.Content(
-                 parts=[genai.types.Part(text=system_prompt)],
-                 role="system"
-             )
-        
         if tools:
              self.logger.warning("Gemini tool usage not fully implemented in this basic wrapper.")
         
+        # Pass system prompt directly as string (modern Gemini API approach)
         response = model.generate_content(
             gemini_messages, 
             generation_config=generation_config,
+            system_instruction=system_prompt if system_prompt else None,
         )
         
         # Enhanced error handling for no candidates
