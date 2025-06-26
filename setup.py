@@ -13,7 +13,7 @@ setup(
     install_requires=[
         'openai>=1.0.0',
         'anthropic>=0.20.0',
-        'google-generativeai>=0.4.0',
+        'google-genai>=1.0.0',
         'Pillow>=9.0.0', # For image_utils
         'requests>=2.25.0' # Potentially needed by wrappers or future additions
     ],
