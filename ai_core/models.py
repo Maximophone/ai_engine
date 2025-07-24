@@ -19,7 +19,7 @@ _MODEL_ALIASES = {
     # Anthropic Aliases
     "haiku": "anthropic:claude-3-haiku-20240307",
     "sonnet": "anthropic:claude-3-sonnet-20240229",
-    "opus": "anthropic:claude-3-opus-20240229",
+    "opus3": "anthropic:claude-3-opus-20240229",
     "sonnet3.5": "anthropic:claude-3-5-sonnet-latest",
     "sonnet3.7": "anthropic:claude-3-7-sonnet-latest", # Verify actual name if available
     "haiku3.5": "anthropic:claude-3-5-haiku-latest", # Verify actual name if available
