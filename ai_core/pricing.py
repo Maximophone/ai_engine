@@ -22,5 +22,13 @@ pricing_data = { # in $ per 1M tokens
     "haiku3": {
         "input": 0.25,
         "output": 1.25,
-    }
+    },
+    "gemini2.5pro": { # TODO: For Gemini, the pricing depends on the number of tokens, so I'll have to find a way to put that in there.
+        "input": 1.25,
+        "output": 10.00,
+    },
+    "gemini2.5flash": {
+        "input": 0.3,
+        "output": 2.5,
+    },
 }
