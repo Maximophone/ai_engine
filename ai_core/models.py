@@ -25,6 +25,7 @@ _MODEL_ALIASES = {
     "haiku3.5": "anthropic:claude-3-5-haiku-latest", # Verify actual name if available
     "opus4": "anthropic:claude-opus-4-20250514",
     "sonnet4": "anthropic:claude-sonnet-4-20250514",
+    "opus4.1": "claude-opus-4-1-20250805",
 
     # Google Aliases
     "gemini1.0": "google:gemini-1.0-pro-latest",
