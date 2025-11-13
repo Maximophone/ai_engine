@@ -79,7 +79,11 @@ class GPTWrapper(AIWrapper):
                     "content": content_list[0]["text"] if len(content_list) == 1 and content_list[0]["type"] == "text" else content_list
                 })
 
-        if model_name.startswith("o1") or model_name.startswith("o3") or model_name.startswith("o4"):
+        if (
+            model_name.startswith("o1") or 
+            model_name.startswith("o3") or 
+            model_name.startswith("o4") or 
+            model_name.startswith("gpt-5") ):
             response = self.client.chat.completions.create(
                 model=model_name,
                 messages=openai_messages,

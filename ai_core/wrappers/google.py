@@ -98,6 +98,8 @@ class GeminiWrapper(AIWrapper):
 
         # Get the first candidate
         candidate = response.candidates[0]
+
+        response_error = None
         
         # Check candidate's finish reason for various blocking scenarios
         finish_reason = getattr(candidate, 'finish_reason', None)
@@ -111,19 +113,25 @@ class GeminiWrapper(AIWrapper):
                 raise Exception(error_detail)
             elif finish_reason in ["MAX_TOKENS", "OTHER"]:
                 self.logger.warning(f"Response finished with reason: {finish_reason}")
+                response_error = finish_reason
                 # Continue processing as we might still have partial content
         
         # For the new SDK, use the .text property to get the response text
         try:
             response_text = response.text
-            return AIResponse(content=response_text)
+            if response_text is None:
+                print("RESPONSE")
+                print(response)
+                print("END RESPONSE")
+            return AIResponse(content=response_text, error=response_error)
         except Exception as e:
+            response_error = (response_error + " + " if response_error else "") + "Response does not have a .text property"
             # Fallback to manual extraction if .text property doesn't work
             if hasattr(candidate, 'content') and candidate.content:
                 if hasattr(candidate.content, 'parts') and candidate.content.parts:
                     first_part = candidate.content.parts[0]
                     if hasattr(first_part, 'text') and first_part.text:
                         response_text = first_part.text
-                        return AIResponse(content=response_text)
+                        return AIResponse(content=response_text, error=response_error)
             
             raise Exception(f"Could not extract text from response: {e}")
