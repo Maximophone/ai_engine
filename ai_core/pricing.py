@@ -35,4 +35,16 @@ pricing_data = { # in $ per 1M tokens
         "input": 0.3,
         "output": 2.5,
     },
+    "gpt5": {
+        "input": 1.25,
+        "output": 10.00,
+    },
+    "gpt5-mini": {
+        "input": 0.25,
+        "output": 2,
+    },
+    "gpt5-nano": {
+        "input": 0.05,
+        "output": 0.4,
+    },
 }

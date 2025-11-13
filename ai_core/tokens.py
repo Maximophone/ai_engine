@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 import sys
 from datetime import datetime as dt
 from .types import Message
@@ -27,8 +27,10 @@ def count_tokens_input(messages: List[Message], system_prompt: str) -> int:
                 images.append(content.image)
     return n_tokens(text) + n_tokens_images(images)
 
-def count_tokens_output(response: str):
-    return n_tokens(response)
+def count_tokens_output(response_content: Union[str, None]) -> int:
+    if response_content is None:
+        return 0
+    return n_tokens(response_content)
 
 def log_token_use(model: str, n_tokens: int, input: bool = True, 
                   fpath: str=TOKEN_COUNT_FILE):

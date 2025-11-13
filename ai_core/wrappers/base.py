@@ -12,6 +12,7 @@ class AIResponse:
     content: str
     tool_calls: Optional[List[ToolCall]] = None
     reasoning: Optional[str] = None
+    error: Optional[str] = None
 
 class AIWrapper:
     def messages(self, model_name: str, messages: List[Message], 

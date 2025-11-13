@@ -25,7 +25,8 @@ _MODEL_ALIASES = {
     "haiku3.5": "anthropic:claude-3-5-haiku-latest", # Verify actual name if available
     "opus4": "anthropic:claude-opus-4-20250514",
     "sonnet4": "anthropic:claude-sonnet-4-20250514",
-    "opus4.1": "claude-opus-4-1-20250805",
+    "opus4.1": "anthropic:claude-opus-4-1-20250805",
+    "sonnet4.5": "anthropic:claude-sonnet-4-5-20250929",
 
     # Google Aliases
     "gemini1.0": "google:gemini-1.0-pro-latest",
@@ -40,6 +41,11 @@ _MODEL_ALIASES = {
     "gemini2.5flashlite": "google:gemini-2.5-flash-lite", # Verify name
 
     # OpenAI Aliases
+    "gpt5.1": "openai:gpt-5.1",
+    "pgt5.1instant": "openai:gpt-5.1-chat-latest",
+    "gpt5": "openai:gpt-5",
+    "gpt5-mini": "openai:gpt-5-mini",
+    "gpt5-nano": "openai:gpt-5-nano",
     "gpt3.5": "openai:gpt-3.5-turbo",
     "gpt4": "openai:gpt-4-turbo-preview",
     "gpt4o": "openai:gpt-4o",
