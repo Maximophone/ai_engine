@@ -39,6 +39,7 @@ _MODEL_ALIASES = {
     "gemini2.5pro": "google:gemini-2.5-pro-preview-03-25", # Verify name
     "gemini2.5flash": "google:gemini-2.5-flash", # Verify name
     "gemini2.5flashlite": "google:gemini-2.5-flash-lite", # Verify name
+    "gemini3.0pro": "google:gemini-3-pro-preview", # Verify name
 
     # OpenAI Aliases
     "gpt5.1": "openai:gpt-5.1",

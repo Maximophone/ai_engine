@@ -35,6 +35,10 @@ pricing_data = { # in $ per 1M tokens
         "input": 0.3,
         "output": 2.5,
     },
+    "gemini3.0pro": {
+        "input": 2.00,
+        "output": 12.00,
+    },
     "gpt5": {
         "input": 1.25,
         "output": 10.00,
