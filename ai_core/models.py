@@ -37,7 +37,7 @@ _MODEL_ALIASES = {
     "gemini2.0flashthinking": "google:gemini-flash-thinking-exp", # Verify name
     "gemini2.0exp": "google:gemini-exp-1206", # Verify name
     "gemini2.5exp": "google:gemini-2.5-pro-exp-03-25", # Verify name
-    "gemini2.5pro": "google:gemini-2.5-pro-preview-03-25", # Verify name
+    "gemini2.5pro": "google:gemini-2.5-pro", # Verify name
     "gemini2.5flash": "google:gemini-2.5-flash", # Verify name
     "gemini2.5flashlite": "google:gemini-2.5-flash-lite", # Verify name
     "gemini3.0pro": "google:gemini-3-pro-preview", # Verify name
