@@ -44,6 +44,7 @@ _MODEL_ALIASES = {
 
     # OpenAI Aliases
     "gpt5.1": "openai:gpt-5.1",
+    "gpt5.2": "openai:gpt-5.2",
     "pgt5.1instant": "openai:gpt-5.1-chat-latest",
     "gpt5": "openai:gpt-5",
     "gpt5-mini": "openai:gpt-5-mini",
