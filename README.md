@@ -9,6 +9,7 @@ A Python library providing a unified interface for interacting with various Larg
 *   Provides a decorator (`@tool`) for easily defining functions callable by AI models.
 *   Includes image input support.
 *   Basic token counting utilities.
+*   Pricing utilities to compute request costs.
 
 ## Installation
 
@@ -91,6 +92,24 @@ ai_client = AI(
 response = ai_client.message("Use the custom tool with parameter 'abc'")
 print(response)
 ```
+
+## Pricing Utilities
+
+The library provides a utility function to compute the cost of API requests based on token usage:
+
+```python
+from ai_core import compute_request_price
+
+# Calculate the cost for a request
+cost = compute_request_price(
+    tokens_in=1000,    # Number of input tokens
+    tokens_out=500,    # Number of output tokens
+    model_alias="sonnet4"  # Model alias (e.g., 'sonnet4', 'opus4', 'gemini2.5pro', 'gpt5')
+)
+print(f"Request cost: ${cost:.4f}")  # Output: Request cost: $0.0105
+```
+
+Supported model aliases include: `opus4`, `opus4.1`, `opus4.5`, `sonnet4`, `sonnet4.5`, `sonnet3.7`, `haiku3.5`, `haiku3`, `opus3`, `gemini2.5pro`, `gemini2.5flash`, `gemini3.0pro`, `gemini3.0flash`, `gpt5`, `gpt5-mini`, `gpt5-nano`.
 
 ## Contributing
 
