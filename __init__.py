@@ -5,6 +5,7 @@ from .ai_core.client import (
 )
 from .ai_core.tools import Tool, ToolParameter, ToolCall, ToolResult
 from .ai_core.types import Message, MessageContent
+from .ai_core.pricing import compute_request_price
 
 __all__ = [
     'AI',
@@ -15,5 +16,6 @@ __all__ = [
     'ToolCall',
     'ToolResult',
     'Message',
-    'MessageContent'
+    'MessageContent',
+    'compute_request_price',
 ]

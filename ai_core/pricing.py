@@ -64,3 +64,41 @@ pricing_data = { # in $ per 1M tokens
         "output": 0.4,
     },
 }
+
+
+def compute_request_price(
+    tokens_in: int,
+    tokens_out: int,
+    model_alias: str
+) -> float:
+    """
+    Compute the price of a request based on token usage and model.
+
+    Args:
+        tokens_in: Number of input tokens consumed.
+        tokens_out: Number of output tokens generated.
+        model_alias: The model alias (e.g., 'sonnet4', 'opus4', 'gemini2.5pro').
+
+    Returns:
+        The total cost in USD as a float.
+
+    Raises:
+        ValueError: If the model alias is not found in the pricing data.
+
+    Example:
+        >>> compute_request_price(tokens_in=1000, tokens_out=500, model_alias="sonnet4")
+        0.0105
+    """
+    if model_alias not in pricing_data:
+        available_models = ", ".join(sorted(pricing_data.keys()))
+        raise ValueError(
+            f"Unknown model alias '{model_alias}'. "
+            f"Available models: {available_models}"
+        )
+
+    model_pricing = pricing_data[model_alias]
+    input_price_per_token = model_pricing["input"] / 1_000_000
+    output_price_per_token = model_pricing["output"] / 1_000_000
+
+    total_price = (tokens_in * input_price_per_token) + (tokens_out * output_price_per_token)
+    return total_price
