@@ -9,7 +9,7 @@ class ClaudeWrapper(AIWrapper):
         self.client = anthropic.Client(api_key=api_key)
 
     def _messages(self, model: str, messages: List[Message], 
-                 system_prompt: str, max_tokens: int, temperature: float,
+                 system_prompt: str, max_tokens: Optional[int], temperature: float,
                  tools: Optional[List[Tool]] = None,
                  thinking: bool = False, thinking_budget_tokens: Optional[int] = None) -> AIResponse:
         # Convert tools to Claude's format if provided
@@ -73,7 +73,8 @@ class ClaudeWrapper(AIWrapper):
 
         arguments = {
             "model": model,
-            "max_tokens": max_tokens,
+            "model": model,
+            "max_tokens": max_tokens or 4096,
             "temperature": temperature,
             "system": system_prompt,
             "messages": claude_messages
@@ -81,8 +82,9 @@ class ClaudeWrapper(AIWrapper):
         
         # Add thinking parameter if enabled
         if thinking:
-            # If thinking_budget_tokens is not specified, use half of max_tokens up to 16K
-            budget = thinking_budget_tokens or min(16000, max_tokens // 2)
+            # If thinking_budget_tokens is not specified, use half of max_tokens (defaulting to 4096) up to 16K
+            tokens = max_tokens or 4096
+            budget = thinking_budget_tokens or min(16000, tokens // 2)
             arguments["thinking"] = {
                 "type": "enabled",
                 "budget_tokens": budget

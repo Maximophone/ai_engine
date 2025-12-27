@@ -32,7 +32,7 @@ class GeminiWrapper(AIWrapper):
         self.client = genai.Client(api_key=api_key)
         
     def _messages(self, model_name: str, messages: List[Message], 
-                 system_prompt: str, max_tokens: int, temperature: float,
+                 system_prompt: str, max_tokens: Optional[int], temperature: float,
                  tools: Optional[List[Tool]] = None,
                  thinking: bool = False, thinking_budget_tokens: Optional[int] = None) -> AIResponse:
         
@@ -66,10 +66,20 @@ class GeminiWrapper(AIWrapper):
              self.logger.warning("Gemini tool usage not fully implemented in this basic wrapper.")
         
         # Create configuration with system instruction support
+        thinking_config = None
+        if thinking:
+            thinking_config = genai_types.ThinkingConfig(include_thoughts=True)
+            if thinking_budget_tokens:
+                # Note: The SDK might use 'thinking_budget_token_limit' or similar, 
+                # but 'include_thoughts' is the key for extraction.
+                # We'll stick to basic enablement for now since field names vary by SDK version.
+                pass
+
         config = genai_types.GenerateContentConfig(
             max_output_tokens=max_tokens,
             temperature=temperature,
             system_instruction=system_prompt if system_prompt else None,
+            thinking_config=thinking_config
         )
         
         # Generate content using the new SDK
@@ -118,14 +128,41 @@ class GeminiWrapper(AIWrapper):
         
         # For the new SDK, use the .text property to get the response text
         try:
-            response_text = response.text
+            response_text = None
+            response_reasoning = None
+
+            # First try parsing parts to separate thoughts from content
+            if hasattr(candidate, 'content') and candidate.content and hasattr(candidate.content, 'parts'):
+                parts_text = []
+                parts_reasoning = []
+                for part in candidate.content.parts:
+                    # Check if the part is a thought
+                    # The SDK sets 'thought=True' on parts that are thoughts
+                    if getattr(part, 'thought', False):
+                        if hasattr(part, 'text') and part.text:
+                            parts_reasoning.append(part.text)
+                    else:
+                        if hasattr(part, 'text') and part.text:
+                            parts_text.append(part.text)
+                
+                if parts_text:
+                    response_text = "".join(parts_text)
+                if parts_reasoning:
+                    response_reasoning = "".join(parts_reasoning)
+
+            # Fallback for text if parts iteration didn't find anything (or plain text response)
             if response_text is None:
+                response_text = response.text
+            
+            if response_text is None and not response_reasoning:
+                 # Debugging aid only
                 print("RESPONSE")
                 print(response)
                 print("END RESPONSE")
-            return AIResponse(content=response_text, error=response_error)
+            
+            return AIResponse(content=response_text, error=response_error, reasoning=response_reasoning)
         except Exception as e:
-            response_error = (response_error + " + " if response_error else "") + "Response does not have a .text property"
+            response_error = (response_error + " + " if response_error else "") + "Response processing error"
             # Fallback to manual extraction if .text property doesn't work
             if hasattr(candidate, 'content') and candidate.content:
                 if hasattr(candidate.content, 'parts') and candidate.content.parts:

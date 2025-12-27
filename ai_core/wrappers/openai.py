@@ -13,7 +13,7 @@ class GPTWrapper(AIWrapper):
         self.client = OpenAI(api_key=api_key)#, organization=org)
 
     def _messages(self, model_name: str, messages: List[Message], 
-                 system_prompt: str, max_tokens: int, temperature: float,
+                 system_prompt: str, max_tokens: Optional[int], temperature: float,
                  tools: Optional[List[Tool]] = None,
                  thinking: bool = False, thinking_budget_tokens: Optional[int] = None) -> AIResponse:
         if system_prompt:

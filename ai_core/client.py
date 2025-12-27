@@ -6,7 +6,7 @@ from .models import resolve_model_info, get_wrapper
 from .image_utils import encode_image, validate_image
 from .wrappers import AIResponse
 
-DEFAULT_MAX_TOKENS = 4096
+DEFAULT_MAX_TOKENS = None
 DEFAULT_TEMPERATURE = 0.0
 
 class AI:
@@ -94,7 +94,7 @@ class AI:
         )]
 
     def message(self, message: Union[str, Message], system_prompt: str = None, 
-                model_override: str = None, max_tokens: int = DEFAULT_MAX_TOKENS, 
+                model_override: str = None, max_tokens: Optional[int] = DEFAULT_MAX_TOKENS, 
                 temperature: float = DEFAULT_TEMPERATURE, debug: bool = False,
                 image_paths: List[str] = None, tools: Optional[List[Tool]] = None,
                 thinking: bool = False, thinking_budget_tokens: Optional[int] = None) -> AIResponse:
@@ -107,7 +107,7 @@ class AI:
         return response
         
     def messages(self, messages: List[Message], system_prompt: str = None, 
-                 model_override: str = None, max_tokens: int = DEFAULT_MAX_TOKENS, 
+                 model_override: str = None, max_tokens: Optional[int] = DEFAULT_MAX_TOKENS, 
                  temperature: float = DEFAULT_TEMPERATURE, debug: bool = False,
                  tools: Optional[List[Tool]] = None, thinking: bool = False,
                  thinking_budget_tokens: Optional[int] = None) -> AIResponse:
@@ -173,7 +173,7 @@ class AI:
         return response
     
     def conversation(self, message: str, system_prompt: str = None, 
-                     model_override: str = None, max_tokens: int = DEFAULT_MAX_TOKENS, 
+                     model_override: str = None, max_tokens: Optional[int] = DEFAULT_MAX_TOKENS, 
                      temperature: float = DEFAULT_TEMPERATURE, debug: bool = False,
                      image_paths: List[str] = None, thinking: bool = False,
                      thinking_budget_tokens: Optional[int] = None):

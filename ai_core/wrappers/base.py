@@ -16,7 +16,7 @@ class AIResponse:
 
 class AIWrapper:
     def messages(self, model_name: str, messages: List[Message], 
-                 system_prompt: str, max_tokens: int, 
+                 system_prompt: str, max_tokens: Optional[int], 
                  temperature: float, tools: Optional[List[Tool]] = None,
                  thinking: bool = False, thinking_budget_tokens: Optional[int] = None) -> AIResponse:
         response = self._messages(model_name, messages, system_prompt, max_tokens, 
@@ -26,7 +26,7 @@ class AIWrapper:
         return response
         
     def _messages(self, model: str, messages: List[Message], 
-                 system_prompt: str, max_tokens: int, 
+                 system_prompt: str, max_tokens: Optional[int], 
                  temperature: float, tools: Optional[List[Tool]] = None,
                  thinking: bool = False, thinking_budget_tokens: Optional[int] = None) -> AIResponse:
         raise NotImplementedError 
