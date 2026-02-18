@@ -8,10 +8,10 @@ import base64
 import os
 from PIL import Image
 from io import BytesIO
-from typing import Tuple
+from typing import Tuple, Optional
 
 
-def _detect_image_type_from_bytes(data: bytes) -> str | None:
+def _detect_image_type_from_bytes(data: bytes) -> Optional[str]:
     """Return the lowercase image format or None if undetectable."""
     try:
         with Image.open(BytesIO(data)) as img:

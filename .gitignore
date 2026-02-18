@@ -1,5 +1,6 @@
 # Environment variables
 .env
+.venv/
 
 # Test artifacts
 token_count.csv

@@ -28,6 +28,8 @@ _MODEL_ALIASES = {
     "opus4.1": "anthropic:claude-opus-4-1-20250805",
     "sonnet4.5": "anthropic:claude-sonnet-4-5-20250929",
     "opus4.5": "anthropic:claude-opus-4-5-20251101",
+    "opus4.6": "anthropic:claude-opus-4-6",
+    "sonnet4.6": "anthropic:claude-sonnet-4-6",
 
     # Google Aliases
     "gemini1.0": "google:gemini-1.0-pro-latest",
