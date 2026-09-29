@@ -4,6 +4,23 @@ from .base import AIWrapper, AIResponse
 from ..types import Message
 from ..tools import Tool, ToolCall
 
+# Opus 4.7 and later reject `temperature` and budget-based thinking (400 error);
+# only these older models still accept them.
+_LEGACY_MODEL_PREFIXES = (
+    "claude-3",
+    "claude-haiku-4-5",
+    "claude-sonnet-4",
+    "claude-opus-4-2",  # claude-opus-4-20250514
+    "claude-opus-4-1",
+    "claude-opus-4-5",
+    "claude-opus-4-6",
+)
+
+
+def _is_legacy_model(model: str) -> bool:
+    return model.startswith(_LEGACY_MODEL_PREFIXES)
+
+
 class ClaudeWrapper(AIWrapper):
     def __init__(self, api_key: str):
         self.client = anthropic.Client(api_key=api_key)
@@ -73,24 +90,25 @@ class ClaudeWrapper(AIWrapper):
 
         arguments = {
             "model": model,
-            "model": model,
             "max_tokens": max_tokens or 4096,
-            "temperature": temperature,
             "system": system_prompt,
             "messages": claude_messages
         }
-        
-        # Add thinking parameter if enabled
-        if thinking:
-            # If thinking_budget_tokens is not specified, use half of max_tokens (defaulting to 4096) up to 16K
-            tokens = max_tokens or 4096
-            budget = thinking_budget_tokens or min(16000, tokens // 2)
-            arguments["thinking"] = {
-                "type": "enabled",
-                "budget_tokens": budget
-            }
-            # Temperature can only be set to 1.0 when thinking is enabled
-            arguments["temperature"] = 1.0
+
+        if _is_legacy_model(model):
+            arguments["temperature"] = temperature
+            if thinking:
+                # If thinking_budget_tokens is not specified, use half of max_tokens (defaulting to 4096) up to 16K
+                tokens = max_tokens or 4096
+                budget = thinking_budget_tokens or min(16000, tokens // 2)
+                arguments["thinking"] = {
+                    "type": "enabled",
+                    "budget_tokens": budget
+                }
+                # Temperature can only be set to 1.0 when thinking is enabled
+                arguments["temperature"] = 1.0
+        elif thinking:
+            arguments["thinking"] = {"type": "adaptive"}
 
         if claude_tools:
             arguments["tools"] = claude_tools

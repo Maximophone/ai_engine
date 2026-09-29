@@ -39,6 +39,14 @@ pricing_data = { # in $ per 1M tokens
         "input": 3,
         "output": 15,
     },
+    "opus5.5": {
+        "input": 4,
+        "output": 20,
+    },
+    "sonnet5.5": {
+        "input": 2,
+        "output": 10,
+    },
     "haiku3": {
         "input": 0.25,
         "output": 1.25,
