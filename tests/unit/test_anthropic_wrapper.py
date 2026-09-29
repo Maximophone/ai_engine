@@ -28,6 +28,10 @@ class TestClaudeWrapperArguments(unittest.TestCase):
             args = self._call(model)
             self.assertNotIn("temperature", args, model)
 
+    def test_default_max_tokens(self):
+        self.assertEqual(self._call("claude-3-haiku-20240307")["max_tokens"], 4096)
+        self.assertEqual(self._call("claude-sonnet-5-5")["max_tokens"], 16000)
+
     def test_new_model_uses_adaptive_thinking(self):
         args = self._call("claude-sonnet-5-5", thinking=True)
         self.assertEqual(args["thinking"], {"type": "adaptive"})

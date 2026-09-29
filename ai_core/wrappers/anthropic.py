@@ -88,14 +88,16 @@ class ClaudeWrapper(AIWrapper):
                 "content": claude_content
             })
 
+        legacy = _is_legacy_model(model)
+        # 16K stays under the SDK's non-streaming timeout guard (~21K)
         arguments = {
             "model": model,
-            "max_tokens": max_tokens or 4096,
+            "max_tokens": max_tokens or (4096 if legacy else 16000),
             "system": system_prompt,
             "messages": claude_messages
         }
 
-        if _is_legacy_model(model):
+        if legacy:
             arguments["temperature"] = temperature
             if thinking:
                 # If thinking_budget_tokens is not specified, use half of max_tokens (defaulting to 4096) up to 16K
